@@ -1,16 +1,17 @@
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
-const mysql = require('mysql');
+// const bodyParser = require('body-parser');
+const mysql = require('mysql2');
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 // Database connection
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  //password: 'your_password',
-  database: 'food'
+  // password: 'your_password',
+  database: 'food',
+  dialect: 'mariadb' // Specify the dialect as 'mariadb'
 });
 
 connection.connect((err) => {

@@ -1,55 +1,76 @@
-// Frontend (React) code
-
 import React, { useState } from 'react';
-import axios from 'axios';
 
 const CreateProfileForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
 
-  const handleFormSubmit = async (e) => {
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post('http://localhost:5000/api/profiles', {
-        username,
-        password,
-        email,
-      });
-      
-      setMessage(response.data.message);
-    } catch (error) {
-      setMessage(error.response.data.error);
+    if (username.length < 3 || password.length < 6 || !email.includes('@')) {
+      return alert('Invalid profile data');
     }
+
+    const profileData = {
+      username,
+      password,
+      email
+    };
+
+    fetch('/api/profiles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(profileData)
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        alert(data.message);
+        setUsername('');
+        setPassword('');
+        setEmail('');
+      })
+      .catch((error) => {
+        console.error('Error creating profile:', error);
+        alert('An error occurred while creating the profile');
+      });
   };
 
   return (
     <div>
       <h2>Create Profile</h2>
-      <form onSubmit={handleFormSubmit}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <form onSubmit={handleSubmit}>
+        <label>
+          Username:
+          <input type="text" value={username} onChange={handleUsernameChange} required />
+        </label>
+        <br />
+        <label>
+          Password:
+          <input type="password" value={password} onChange={handlePasswordChange} required />
+        </label>
+        <br />
+        <label>
+          Email:
+          <input type="email" value={email} onChange={handleEmailChange} required />
+        </label>
+        <br />
         <button type="submit">Create Profile</button>
       </form>
-      {message && <p>{message}</p>}
     </div>
   );
 };
